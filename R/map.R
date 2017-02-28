@@ -28,8 +28,7 @@ make_shifts1 <- function(re) {
 #' [map_ansi_to_raw1()] does the opposite convertion, from ANSI positions
 #' to raw positions.
 #'
-#' @param map The map matrix, created with [make_shifts1()] or
-#'   a component of [make_ansi_map1()] or [make_ansi_map()].
+#' @param map The map matrix, created with [make_ansi_map1()].
 #' @param raw An integer or numeric scalar, the raw position to convert.
 #' @return A numeric scalar, the ANSI position corresponding to the
 #'   raw position `raw`.
@@ -52,8 +51,7 @@ map_raw_to_ansi1 <- function(map, raw) {
 #' [map_raw_to_ansi1()] does the opposite convertion, from raw positions
 #' to ANSI positions.
 #'
-#' @param map The map matrix, created with [make_shifts1()] or
-#'   a component of [make_ansi_map1()] or [make_ansi_map()].
+#' @param map The map matrix, created with [make_ansi_map1()].
 #' @param ansi An integer or numeric scalar, the ANSI position to convert.
 #' @return A numeric scalar, the raw position corresponding to the
 #'   ANSI position `ansi`.

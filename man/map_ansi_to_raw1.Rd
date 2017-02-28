@@ -7,8 +7,7 @@
 map_ansi_to_raw1(map, ansi)
 }
 \arguments{
-\item{map}{The map matrix, created with \code{\link[=make_shifts1]{make_shifts1()}} or
-a component of \code{\link[=make_ansi_map1]{make_ansi_map1()}} or \code{\link[=make_ansi_map]{make_ansi_map()}}.}
+\item{map}{The map matrix, created with \code{\link[=make_ansi_map1]{make_ansi_map1()}}.}
 
 \item{ansi}{An integer or numeric scalar, the ANSI position to convert.}
 }
