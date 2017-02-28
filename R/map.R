@@ -13,14 +13,8 @@
 #' @keywords internal
 
 make_shifts1 <- function(re) {
-  shifts <- cbind(re$.match$start[[1]],
-                  re$.match$end[[1]] - re$.match$start[[1]] + 1)
-  shifts[, 2] <- cumsum(shifts[, 2])
-  shifts <- cbind(
-    c(shifts[1,1], shifts[-1, 1] - shifts[-nrow(shifts), 2]),
-    shifts
-  )
-  shifts
+  .Call("ansistrings_make_shifts1", re$.match$start[[1]], re$.match$end[[1]],
+        PACKAGE = "ansistrings")
 }
 
 #' Map raw string positions to ANSI
@@ -37,13 +31,8 @@ make_shifts1 <- function(re) {
 #' @importFrom utils tail
 
 map_raw_to_ansi1 <- function(map, raw) {
-  sh <- map$shifts
-  wh <- tail(which(raw >= sh[, 1]), 1)
-  if (!length(wh)) {
-    raw
-  } else {
-    raw + sh[wh, 3]
-  }
+  .Call("ansistrings_map_raw_to_ansi1", map$shifts, as.integer(raw),
+        PACKAGE = "ansistrings")
 }
 
 #' Map ANSI string positions to raw positions
@@ -60,13 +49,8 @@ map_raw_to_ansi1 <- function(map, raw) {
 #' @importFrom utils tail
 
 map_ansi_to_raw1 <- function(map, ansi) {
-  sh <- map$shifts
-  wh <- tail(which(ansi >= sh[, 2]), 1)
-  if (!length(wh)) {
-    ansi
-  } else {
-    ansi - sh[wh, 3]
-  }
+  .Call("ansistrings_map_ansi_to_raw1", map$shifts, as.integer(ansi),
+        PACKAGE = "ansistrings")
 }
 
 #' Create a map of the ANSI tags of a single string

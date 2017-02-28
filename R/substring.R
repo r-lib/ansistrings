@@ -79,8 +79,8 @@ ansi_substr1 <- function(x, start, stop) {
   active_at_start <- map$map$start <= start & map$map$end >= start
   active_at_end   <- map$map$start <= stop  & map$map$end >= stop
 
-  ansi_start <- vapply(start, map_raw_to_ansi1, 1, map = map)
-  ansi_stop  <- vapply(stop,  map_raw_to_ansi1, 1, map = map)
+  ansi_start <- vapply(start, map_raw_to_ansi1, 1L, map = map)
+  ansi_stop  <- vapply(stop,  map_raw_to_ansi1, 1L, map = map)
 
   paste0(
     paste(map$map$open[active_at_start], collapse = ""),
