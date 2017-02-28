@@ -147,6 +147,7 @@ make_ansi_map1 <- function(str) {
 
   ## We only really need one row per start tag
   res <- res[start_tags, ]
+  rownames(res) <- NULL
 
   ## Close at the end of the string, if the ANSI close tag is missing
   res$end[is.na(res$end)] <- nchar(str) - tail(shifts[,1], 1)
