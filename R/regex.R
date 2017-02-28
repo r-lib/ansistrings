@@ -19,6 +19,15 @@ re_endhidden        <- "28"
 re_endstrikethrough <- "29"
 re_endreset         <- "0"
 
+#' Create a regular expression that matches ANSI tags
+#'
+#' It uses groups to distinguish between start and end tags, and
+#' it also keeps the actual command string within the ANSI tag. E.g.
+#' `"1"` means a *bold* start tag.
+#'
+#' @return A character scalar, the regular expression.
+#' @keywords internal
+
 re_ansi <- function() {
   re_start <- paste(
     sep = "|",
@@ -40,6 +49,18 @@ re_ansi <- function() {
   )
 
 }
+
+#' Which ANSI end tag closes which ANSI start tag?
+#'
+#' Create a map that answers this question.
+#'
+#' @return A named list, the names are the ANSI end tag command strings.
+#'   The list contains character vectors, specifying the start tags that
+#'   are closed by each end tag. Most end tags close a single start tag,
+#'   but some close multiple ones, and the *reset* end tag closes all
+#'   start tags.
+#'
+#' @keywords internal
 
 re_closes <- function() {
 
