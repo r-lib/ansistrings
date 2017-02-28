@@ -69,9 +69,9 @@ test_that("make_ansi_map1 corner cases", {
     open = character(),
     close = character()
   )
-  expect_equal(make_ansi_map1(""), empty_map)
-  expect_equal(make_ansi_map1("x"), empty_map)
-  expect_equal(make_ansi_map1("foobar"), empty_map)
+  expect_equal(make_ansi_map1("")$map, empty_map)
+  expect_equal(make_ansi_map1("x")$map, empty_map)
+  expect_equal(make_ansi_map1("foobar")$map, empty_map)
 })
 
 test_that("make_ansi_map", {
