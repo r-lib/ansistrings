@@ -1,14 +1,37 @@
 
+#' Substring of an ANSI-styled string, keeping correct colors
+#'
+#' These functions are the ANSI-aware counterparts of [base::substr()] and
+#' [base::substring()]. They extract substrings from a character vector,
+#' while keeping the colors and style of the characters in the strings
+#' the same.
+#'
+#' @param x,text A character vector.
+#' @param start,first Integer, the first element to be extracted.
+#' @param stop,last Integer, the last element to extracted.
+#' @return For `substr`, a character vector of the same length and with
+#'   the same attributes as `x` (after possible coercion).
+#'
+#'   For `substring`, a character vector of length the longest of the
+#'   arguments.  This will have names taken from `x` (if it has any
+#'   after coercion, repeated as needed), and other attributes copied
+#'   from `x` if it is the longest of the arguments).
+#'
 #' @export
-
-ansi_substring <- function(text, first, last = 1000000L) {
-  if (!is.character(text)) text <- as.character(text)
-  n <- max(lt <- length(text), length(first), length(last))
-  if (lt && lt < n) text <- rep_len(text, length.out = n)
-  ansi_substr(text, as.integer(first), as.integer(last))
-}
-
-#' @export
+#' @examples
+#' str <- crayon::bold(
+#'   "This text is bold, and", crayon::red("parts of it are red,"),
+#'   "parts of it not."
+#' )
+#' cat(str, "\n")
+#'
+#' cat(ansi_substr(str, 1, 17), "\n")
+#' cat(ansi_substr(str, 1, 42), "\n")
+#' cat(ansi_substr(str, 24, 42), "\n")
+#'
+#' ## Vector arguments, just like in base::substring and base::substr
+#' cat(ansi_substr(c(str, str), c(1, 20), c(22, 42)), sep = "\n")
+#' cat(ansi_substring(str, 1:30, 1:30), "\n")
 
 ansi_substr <- function(x, start, stop) {
   if (!is.character(x)) x <- as.character(x)
@@ -49,4 +72,14 @@ ansi_substr1 <- function(x, start, stop) {
     substr(x, ansi_start, ansi_stop),
     paste(map$map$close[active_at_end], collapse = "")
   )
+}
+
+#' @rdname ansi_substr
+#' @export
+
+ansi_substring <- function(text, first, last = 1000000L) {
+  if (!is.character(text)) text <- as.character(text)
+  n <- max(lt <- length(text), length(first), length(last))
+  if (lt && lt < n) text <- rep_len(text, length.out = n)
+  ansi_substr(text, as.integer(first), as.integer(last))
 }

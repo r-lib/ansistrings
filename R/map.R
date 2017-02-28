@@ -14,6 +14,8 @@ make_shifts1 <- function(re) {
   shifts
 }
 
+#' @importFrom utils tail
+
 map_raw_to_ansi1 <- function(map, raw) {
   sh <- map$shifts
   wh <- tail(which(raw >= sh[, 1]), 1)
@@ -23,6 +25,8 @@ map_raw_to_ansi1 <- function(map, raw) {
     raw + sh[wh, 3]
   }
 }
+
+#' @importFrom utils tail
 
 map_ansi_to_raw1 <- function(map, ansi) {
   sh <- map$shifts
@@ -35,6 +39,7 @@ map_ansi_to_raw1 <- function(map, ansi) {
 }
 
 #' @importFrom rematch2 re_exec_all
+#' @importFrom utils tail
 
 make_ansi_map1 <- function(str) {
   re <- re_exec_all(str, re_ansi())
