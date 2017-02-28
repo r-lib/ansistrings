@@ -159,5 +159,5 @@ make_ansi_map1 <- function(str) {
 #' @rdname make_ansi_map1
 
 make_ansi_map <- function(str) {
-  lapply(str, make_ansi_map)
+  lapply(str, make_ansi_map1)
 }
