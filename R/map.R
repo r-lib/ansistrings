@@ -61,7 +61,7 @@ map_raw_to_ansi1 <- function(map, raw) {
 
 map_ansi_to_raw1 <- function(map, ansi) {
   sh <- map$shifts
-  wh <- tail(which(ansi >= sh[, 2])[1], 1)
+  wh <- tail(which(ansi >= sh[, 2]), 1)
   if (!length(wh)) {
     ansi
   } else {
