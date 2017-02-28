@@ -1,7 +1,16 @@
 
-## To calculate coordinates, raw -> ansi or back
-## First columns is raw coordinates, second column is
-## ansi coordinates, third column is the offset between them
+#' Create the map for raw <-> ANSI coordinate conversion
+#'
+#' The result of this function can be used with [map_raw_to_ansi1()] and
+#' [map_ansi_to_raw1()] do the actual conversion between them.
+#'
+#' @param re The positions of the ANSI tags, as the output of the
+#'   [rematch2::re_exec_all()] function.
+#' @return A three column matrix.
+#'   First column is the raw coordinates of the tags, second column is
+#'   ansi coordinates, third column is the offset between them.
+#'
+#' @keywords internal
 
 make_shifts1 <- function(re) {
   shifts <- cbind(re$.match$start[[1]],
@@ -14,6 +23,18 @@ make_shifts1 <- function(re) {
   shifts
 }
 
+#' Map raw string positions to ANSI
+#'
+#' [map_ansi_to_raw1()] does the opposite convertion, from ANSI positions
+#' to raw positions.
+#'
+#' @param map The map matrix, created with [make_shifts1()] or
+#'   a component of [make_ansi_map1()] or [make_ansi_map()].
+#' @param raw An integer or numeric scalar, the raw position to convert.
+#' @return A numeric scalar, the ANSI position corresponding to the
+#'   raw position `raw`.
+#'
+#' @keywords internal
 #' @importFrom utils tail
 
 map_raw_to_ansi1 <- function(map, raw) {
@@ -26,6 +47,18 @@ map_raw_to_ansi1 <- function(map, raw) {
   }
 }
 
+#' Map ANSI string positions to raw positions
+#'
+#' [map_raw_to_ansi1()] does the opposite convertion, from raw positions
+#' to ANSI positions.
+#'
+#' @param map The map matrix, created with [make_shifts1()] or
+#'   a component of [make_ansi_map1()] or [make_ansi_map()].
+#' @param ansi An integer or numeric scalar, the ANSI position to convert.
+#' @return A numeric scalar, the raw position corresponding to the
+#'   ANSI position `ansi`.
+#'
+#' @keywords internal
 #' @importFrom utils tail
 
 map_ansi_to_raw1 <- function(map, ansi) {
@@ -38,6 +71,28 @@ map_ansi_to_raw1 <- function(map, ansi) {
   }
 }
 
+#' Create a map of the ANSI tags of a single string
+#'
+#' This map can be then used in various string operations, e.g.
+#' [ansi_substr()], etc.
+#'
+#' `make_ansi_map1()` works for a string scalar, `make_ansi_map()` does
+#' the same for all strings in a character vector.
+#'
+#' @param str A string scalar.
+#' @return A list with two components. `map` is a data frame with four
+#'   columns: `start`, `end`, `open`, `close`. It has one row for each
+#'   single ANSI markup. In other words, it has one row for each ANSI start
+#'   tag. The `start` column contains the start positions (in raw
+#'   coordinates) of the markup, the `end` column has the end positions.
+#'   The `open` and `close` columns contain the full ANSI open and close
+#'   tags.
+#'
+#'   `shifts` is a three column matrix that can be used to convert between
+#'   raw and ANSI coordinates. It is created by [make_shifts1()], see that
+#'   for the actual format.
+#'
+#' @keywords internal
 #' @importFrom rematch2 re_exec_all
 #' @importFrom utils tail
 
@@ -101,6 +156,8 @@ make_ansi_map1 <- function(str) {
 
   list(map = res, shifts = shifts)
 }
+
+#' @rdname make_ansi_map1
 
 make_ansi_map <- function(str) {
   lapply(str, make_ansi_map)

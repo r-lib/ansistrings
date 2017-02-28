@@ -56,6 +56,21 @@ ansi_substr <- function(x, start, stop) {
   res
 }
 
+#' Substring, for a single character
+#'
+#' We use the ANSI map of the string, created by [make_ansi_map1()].
+#' The result is put together from three pieces:
+#' * The ANSI start tags that are active at the beginning of the substring.
+#' * The substring that is selected, including all ANSI tags in it.
+#' * The ANSI end tags that are active at the end of the substring.
+#'
+#' @param x Length one character vector.
+#' @param start Length one numeric or integer.
+#' @param stop Length one numeric or integer.
+#' @return Length one character, the substring.
+#'
+#' @keywords internal
+
 ansi_substr1 <- function(x, start, stop) {
   if (start > stop) return("")
 
