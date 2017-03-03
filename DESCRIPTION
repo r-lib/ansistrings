@@ -17,4 +17,6 @@ Imports:
     utils
 Suggests: 
     testthat
+Remotes:
+    MangoTheCat/rematch2
 Encoding: UTF-8
