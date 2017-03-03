@@ -34,4 +34,4 @@ myseq <- function(from, to, by = 1) {
 
 #' @rdname myseq
 
-`%:%` <- myseq
+`%:%` <- function(from, to) myseq(from, to)
