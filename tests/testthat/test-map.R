@@ -2,7 +2,7 @@
 context("ANSI mappings")
 
 test_that("make_shifts1", {
-  str <- paste("pre", crayon::red("red"), crayon::bold("bold"), "post")
+  str <- "pre \033[31mred\033[39m \033[1mbold\033[22m post"
   obj <- make_shifts1(rematch2::re_exec_all(str, re_ansi()))
   exp <- cbind( c(5,8,9,13), c(5,13,19,27), c(5,10,14,19))
   expect_equal(obj, exp)
@@ -10,7 +10,7 @@ test_that("make_shifts1", {
 
 test_that("map_raw_to_ansi1, map_ansi1_to_raw", {
 
-  str <- paste("pre", crayon::red("red"), crayon::bold("bold"), "post")
+  str <- "pre \033[31mred\033[39m \033[1mbold\033[22m post"
   map <- make_ansi_map1(str)
 
   cases <- list(
@@ -33,7 +33,7 @@ test_that("map_raw_to_ansi1, map_ansi1_to_raw", {
 })
 
 test_that("make_ansi_map1", {
-  str <- paste("pre", crayon::red("red"), crayon::bold("bold"), "post")
+  str <- "pre \033[31mred\033[39m \033[1mbold\033[22m post"
   map <- make_ansi_map1(str)
   exp <- list(
     map = data.frame(
@@ -75,8 +75,8 @@ test_that("make_ansi_map1 corner cases", {
 })
 
 test_that("make_ansi_map", {
-  str1 <- paste("pre", crayon::red("red"), crayon::bold("bold"), "post")
-  str2 <- paste("another", crayon::italic("one"))
+  str1 <- "pre \033[31mred\033[39m \033[1mbold\033[22m post"
+  str2 <- "another \033[3mone\033[23m"
 
   expect_equal(
     make_ansi_map(c(str1, str2)),
