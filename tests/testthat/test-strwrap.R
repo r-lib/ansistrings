@@ -25,8 +25,8 @@ test_that('strwrap examples', {
 
    writeLines(ansi_strwrap(y.paste, width = 60))
    writeLines(ansi_strwrap(y.paste, width = 60, indent = 5))
-   writeLines(ansi_strwrap(y.paste, width = 60, ey.pastedent = 5))
-   writeLines(ansi_strwrap(y.paste, prefiy.paste = "THANKS> "))
+   writeLines(ansi_strwrap(y.paste, width = 60, exdent = 5))
+   writeLines(ansi_strwrap(y.paste, prefix = "THANKS> "))
 
 
    expect_equal(
