@@ -8,7 +8,7 @@ Authors@R: c(
     role=c("aut", "cre")),
     person(
     "Brodie", "Gaslam", email="brodie.gaslam@yahoo.com",
-    role=c("aut"))
+    role=c("aut")),
     person(
     family="R Core Team",
     email="R-core@r-project.org",
