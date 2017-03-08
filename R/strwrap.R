@@ -1,10 +1,11 @@
 #' Wrap Character Strings to Format Paragraphs - ANSI Aware
 #'
-#' This is an ANSI-aware copy of \code{base::strwrap}.  The source code is a
-#' copied and lightly modified version of that function.
+#' This is an ANSI-aware copy of \code{base::strwrap}.
 #'
-#' copy stwrap docs here
-#'
+#' @note Carriage returns, form feeds, vertical tabs and other white space
+#'   characters outside of tabs, spaces, and newlines are treated as
+#'   normal printing character are, which may render incorrectly on your
+#'   terminal.
 #' @export
 #' @param x: a character vector, or an object which can be converted to a
 #'   character vector by \sQuote{as.character}.
@@ -28,129 +29,142 @@ ansi_strwrap <- function(
   prefix = "", simplify = TRUE, initial = prefix
 ) {
   if(!is.character(x)) x <- as.character(x)
+  message("add encoding handling")
 
-  ## Useful variables.
-  indentString <- strrep(" ", indent)
-  exdentString <- strrep(" ", exdent)
-  y <- list()                         # return value
+  # Replace all multi spaces with a single space, except if they happen to be
+  # two spaces following a period, question mark, or exclamation point that
+  # themselves appear to be at the end of a word.
 
-  ## We use ansi_strsplit() to tokenize input into paras and words, and
-  ## hence need to tweak how it handles/transforms encodings.  To
-  ## preserve encodings, it seems "best" to canonicalize to UTF-8
-  ## (ensuring valid UTF-8), and at the end convert back to latin1
-  ## where we originally had latin1.
+  x <- gsub("\t", " ", x, fixed=TRUE)
+  x.1 <- gsub('(?<=\\w)([.!?] ) +| +', '\\1 ', x, perl=TRUE)
 
-  enc <- Encoding(x)
-  x <- enc2utf8(x)
-  if(any(ind <- !validEnc(x)))
-  x[ind] <- iconv(x[ind], "UTF-8", "UTF-8", sub = "byte")
+  # Split by newlines, and establish mapping of each element back to the
+  # original vector spot so we can use it when `simplify=FALSE`
 
-  z <- lapply(ansi_strsplit(x, "\n[ \t\n]*\n", perl = TRUE),
-  ansi_strsplit, "[ \t\n]", perl = TRUE)
+  x.s <- ansi_strsplit(x.1, "\n")
+  x.s.len <- vapply(x.s, length, integer(1L))
+  x.s.ul <- unlist(x.s)
 
-  ## Now z[[i]][[j]] is a character vector of all "words" in
-  ## paragraph j of x[i].
+  # Word wrap each element
 
-  for(i in seq_along(z)) {
-    yi <- character()
-    for(j in seq_along(z[[i]])) {
-      ## Format paragraph j in x[i].
-      words <- z[[i]][[j]]
-      nc <- ansi_nchar(words, type="w")
-      if(anyNA(nc)) {
-        ## use byte count as a reasonable substitute
-        nc0 <- ansi_nchar(words, type="b")
-        nc[is.na(nc)] <- nc0[is.na(nc)]
+  x.wrap.l <- lapply(x.s.ul, elem_wrap, width=width)
+
+  # re-list if not simplified
+
+  x.res <- if(simplify) {
+    unlist(x.wrap.l)
+  } else {
+    x.s.groups <- rep(seq_along(x.s), x.s.len)
+    x.wrap.l.s <- split(x.wrap.l, x.s.groups)
+    unname(lapply(x.wrap.l.s, unlist))
+  }
+  x.res
+}
+## Helper Function for `strwrap`
+##
+## Wraps a single element.  Assumes only space characters within are actual
+## spaces since the calling function gets rid of tabs, newlines, etc.
+
+elem_wrap <- function(elem, width) {
+  stopifnot(length(elem) == 1L)
+
+  # allocate to maximum possible size
+
+  res <- character(ceiling(ansi_nchar(elem) / width * 2))
+  res.i <- 1L
+
+  # Iterativevly copy chunks until elem is right size
+
+  while(ansi_nchar(elem) > width) {
+    # 
+
+  }
+
+
+
+}
+
+#' @export
+
+word_wrap <- function(
+  x, width=getOption("width"), tolerance=8L, hyphens=TRUE, unlist=TRUE,
+  collapse=NULL
+) {
+  stopifnot(
+    is.character(x),
+    length(width) == 1L && !is.na(width) && is.numeric(width),
+    is.integer(tolerance) && length(tolerance) == 1L && !is.na(tolerance) &&
+    tolerance >= 0L,
+    is.null(collapse) || is.chr1(collapse)
+  )
+  width <- as.integer(width)
+
+  if(!(width > 4L && width - tolerance > 2L)) {
+    warning(
+      "Display width too narrow to properly wrap text; setting to 80L"
+    )
+    width <- 80L
+    tolerance <- 8L
+  }
+  width <- as.integer(width)
+
+  # Define patterns, should probably be done outside of function
+
+  break_char <- function(x) {
+    # Allocate worst case vector, which is 2x as long as the input where we have
+    # a one letter word we can wrap and then something we can't wrap
+
+    res <- character(2 * nchar(x) / width * 2)
+    res.idx <- 1
+    spc.ptrn <- sprintf(base.ptrn, "\\s")
+
+    if(!nchar(x)) return(x)
+    while(nchar(x)) {
+      pad <- 0L  # account for hyphen
+      if(nchar(x) > width) {
+        x.sub <- substr(x, 1L, width + 1L)
+        x.trim <- sub(spc.ptrn, "\\1", x.sub, perl=TRUE)
+
+        # Look for spaces in truncated string
+
+        matched <- grepl(spc.ptrn, x.sub, perl=TRUE)
+        if(!matched) x.trim <- substr(x, 1L, width)  # Failed, truncate
+
+        # we allow one extra char for pattern match some cases, remove here
+
+        x.trim <- substr(x.trim, 1L, width)
+
+        # remove leading space if any
+
+        x <- sub(
+          "^\\s(.*)", "\\1",
+          substr(x, min(nchar(x.trim), width) + 1L - pad, nchar(x)),
+          perl=TRUE
+        )
+      } else {
+        x.trim <- x
+        x <- ""
       }
-
-      ## Remove extra white space unless after a period which
-      ## hopefully ends a sentence.
-      ## Add ? ! as other possible ends, and there might be
-      ## quoted and parenthesised sentences.
-      ## NB, input could be invalid here.
-      if(any(nc == 0L)) {
-        zLenInd <- which(nc == 0L)
-        zLenInd <- zLenInd[!(zLenInd %in%
-          (grep("[.?!][)\"']{0,1}$", words,
-          perl = TRUE, useBytes = TRUE) + 1L))]
-        if(length(zLenInd)) {
-          words <- words[-zLenInd]
-          nc <- nc[-zLenInd]
-        }
-      }
-
-      if(!length(words)) {
-        yi <- c(yi, "", initial)
-        next
-      }
-
-      currentIndex <- 0L
-      lowerBlockIndex <- 1L
-      upperBlockIndex <- integer()
-      lens <- cumsum(nc + 1L)
-
-      first <- TRUE
-      maxLength <- width - ansi_nchar(initial, type="w") - indent
-
-      ## Recursively build a sequence of lower and upper indices
-      ## such that the words in line k are the ones in the k-th
-      ## index block.
-      while(length(lens)) {
-        k <- max(sum(lens <= maxLength), 1L)
-        if(first) {
-          first <- FALSE
-          maxLength <- width - ansi_nchar(prefix, type="w") - exdent
-        }
-        currentIndex <- currentIndex + k
-        if(nc[currentIndex] == 0L)
-          ## Are we sitting on a space?
-          upperBlockIndex <- c(upperBlockIndex,
-            currentIndex - 1L)
-        else
-          upperBlockIndex <- c(upperBlockIndex, currentIndex)
-        if(length(lens) > k) {
-          ## Are we looking at a space?
-          if(nc[currentIndex + 1L] == 0L) {
-            currentIndex <- currentIndex + 1L
-            k <- k + 1L
-          }
-          lowerBlockIndex <- c(lowerBlockIndex,
-            currentIndex + 1L)
-        }
-        if(length(lens) > k)
-          lens <- lens[-seq_len(k)] - lens[k]
-        else
-          lens <- NULL
-      }
-
-      nBlocks <- length(upperBlockIndex)
-      s <- paste0(c(initial, rep.int(prefix, nBlocks - 1L)),
-      c(indentString, rep.int(exdentString, nBlocks - 1L)))
-      initial <- prefix
-      for(k in seq_len(nBlocks))
-      s[k] <- paste0(s[k], paste(words[lowerBlockIndex[k] :
-        upperBlockIndex[k]],
-        collapse = " "))
-
-        yi <- c(yi, s, prefix)
+      res[[res.idx]] <- x.trim
+      res.idx <- res.idx + 1L
     }
-    y <- if(length(yi))
-    c(y, list(yi[-length(yi)]))
-    else
-    c(y, "")
+    res[1L:(res.idx - 1L)]
   }
+  # x.lst workaround required because `strsplit` swallows zero char char items!!
 
-  if(length(pos <- which(enc == "latin1"))) {
-    y[pos] <- lapply(
-      y[pos],
-      function(s) {
-        e <- Encoding(s)
-        if(length(p <- which(e == "UTF-8")))
-        s[p] <- iconv(s[p], "UTF-8", "latin1",
-          sub = "byte")
-          s
-    } )
+  x.lst <- as.list(x)
+
+  # replace new lines with 0 char item; note that leading NLs need special
+  # treatment; used to put in two newlines here; not sure why though
+
+  x.lst[nchar(x) > 0] <- strsplit(x[nchar(x) > 0], "\n")
+
+  res <- lapply(x.lst, function(x) unlist(lapply(x, break_char)))
+  res.fin <- if(unlist) unlist(res) else res
+  if(!is.null(collapse)) {
+    res.fin <- if(is.list(res.fin))
+      lapply(res.fin, paste0, collapse=collapse) else
+        paste0(res.fin, collapse=collapse)
   }
-  if(simplify) y <- as.character(unlist(y))
-  y
+  res.fin
 }

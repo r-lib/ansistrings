@@ -30,4 +30,17 @@ test_that('strwrap examples', {
   writeLines(ansi_strwrap(y.paste, width = 60, exdent = 5))
   writeLines(ansi_strwrap(y.paste, prefix = "THANKS> "))
 
+  a <- "this is a \r string with \r carriage returns in the \rmiddle of it"
+  strwrap(a, width=20)
+
+  a <- character()
+  a <- "\n"
+  a <- "Hello.   There\t. Wow.   This is a spacey  sentence."
+  a <- "thisisalongishwordthatwillneedtobesplitsomewhow"
+
+  b <- c(
+    paste0("hello ", red("roses"), "there"),
+    green("this is a color", bgRed("and another"), "yow")
+  )
+
 })
