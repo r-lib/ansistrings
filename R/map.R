@@ -52,6 +52,9 @@ map_ansi_to_raw1 <- function(map, ansi) {
   .Call("ansistrings_map_ansi_to_raw1", map$shifts, as.integer(ansi),
         PACKAGE = "ansistrings")
 }
+## QUESTION: Does "Raw Coordinates" mean original coordinates, or coordinates
+## after assuming ANSI sequences are zero length?  Return value of
+## `make_ansi_map` suggests the later, but "Raw" suggests the former.
 
 #' Create a map of the ANSI tags of a single string
 #'
