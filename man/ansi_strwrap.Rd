@@ -32,9 +32,16 @@ obtained from the corresponding element of \code{x}.  (Hence, the result in
 the former case is obtained by unlisting that of the latter.)}
 }
 \description{
-This is an ANSI-aware copy of \code{base::strwrap}.  The source code is a
-copied and lightly modified version of that function.
+This is an ANSI-aware copy of \code{base::strwrap}.
 }
-\details{
-copy stwrap docs here
+\section{Whitespace}{
+
+
+Tabs are treated as single spaces, space sequences are treated as single
+spaces except that those following end of sentence markers (i.e. \sQuote{.},
+\sQuote{?}, or \sQuote{!} will be treated as two spaces if they are two
+spaces or longer.  Form feeds and new lines are treated as newlines.  All
+other whitespace, including but not limited to vertical tabs, carriage
+returns, etc., are treated as if they occupy one screen character.
 }
+

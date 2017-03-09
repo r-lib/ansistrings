@@ -51,13 +51,15 @@ ansi_strwrap <- function(
   x.s.ul <- unlist(x.s)
 
   # Get location of spaces in entire vector; doing it here in the hopes that
-  # with C vetorized mapping code it will be faster to do it this way
+  # with C vetorized mapping code it will be faster to do it this way instead of
+  # for each individual CHRSXP
 
   x.spaces <- gregexpr(" +", x.s.ul)
+  x.map <- make_ansi_map(x.s.ul)
 
   # Word wrap each element
 
-  x.wrap.l <- Map(x.s.ul, elem_wrap, width=width)
+  x.wrap.l <- Map(elem_wrap, x.s.ul, spaces=x.spaces, map=x.map, width=width)
 
   # re-list if not simplified
 
@@ -74,24 +76,60 @@ ansi_strwrap <- function(
 ##
 ## Wraps a single element.  Assumes only space characters within are actual
 ## spaces since the calling function gets rid of tabs, newlines, etc.
+##
+## @param elem character scalar
+## @param spaces list data from `regexpr` match for spaces in our vector
+## @param map raw to ansi mapping data
+## @param width wrap width
 
-elem_wrap <- function(elem, width) {
+elem_wrap <- function(elem, spaces, map, width) {
   stopifnot(length(elem) == 1L)
 
-  # allocate to maximum possible size
+  # If no spaces can't wrap
 
-  res <- character(ceiling(ansi_nchar(elem) / width * 2))
-  res.i <- 1L
+  elem.orig <- elem # copy (for debugging) since we're going to modify elem
 
-  # Iterativevly copy chunks until elem is right size
+  if(length(spaces) && ansi_nchar(elem) > width) {
+    # allocate res to maximum possible size, will reduce later if needed
 
-  while(ansi_nchar(elem) > width) {
-    # 
+    el.chars <- ansi_nchar(elem)
+    res <- character(ceiling(el.chars / width * 2))
+    res.i <- 1L
+    elem.i <- 1L
 
+    # Remap space position to ansi-space, need `space.len` for the two spaces
+    # following periods, etc.
+
+    space.ansi <- vapply(spaces, map_raw_to_ansi1, integer(1L), map=map)
+    space.len <- attr(spaces, 'match.length')
+
+    repeat {
+      # Try to find a space inside width, and if not, next one after that (the
+      # max(..., 1L) handles this fail over case)
+
+      target <- max(c(which(space.ansi <= width), 1L))
+
+      # get the string up to just before that space, and then move our indices
+      # forward
+
+      res[res.i] <- ansi_substr(elem, elem.i, space.ansi[target] - 1L)
+      elem.i <- target + space.len[target]
+
+      space.ansi <- tail(space.ansi, -target)
+      space.len <- tail(space.len, -target)
+      res.i <- res.i + 1
+
+      # End case
+
+      if(!length(space.ansi) || (el.chars - elem.i + 1 <= width)) {
+        res[res.i] <- ansi_substr(elem, elem.i, el.chars)
+        break
+      }
+    }
+    head(res, res.i)
+  } else {
+    elem
   }
-
-
-
 }
 
 #' @export
