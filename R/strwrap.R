@@ -2,10 +2,15 @@
 #'
 #' This is an ANSI-aware copy of \code{base::strwrap}.
 #'
-#' @note Carriage returns, form feeds, vertical tabs and other white space
-#'   characters outside of tabs, spaces, and newlines are treated as
-#'   normal printing character are, which may render incorrectly on your
-#'   terminal.
+#' @section Whitespace:
+#'
+#' Tabs are treated as single spaces, space sequences are treated as single
+#' spaces except that those following end of sentence markers (i.e. \sQuote{.},
+#' \sQuote{?}, or \sQuote{!} will be treated as two spaces if they are two
+#' spaces or longer.  Form feeds and new lines are treated as newlines.  All
+#' other whitespace, including but not limited to vertical tabs, carriage
+#' returns, etc., are treated as if they occupy one screen character.
+#'
 #' @export
 #' @param x: a character vector, or an object which can be converted to a
 #'   character vector by \sQuote{as.character}.
@@ -41,13 +46,18 @@ ansi_strwrap <- function(
   # Split by newlines, and establish mapping of each element back to the
   # original vector spot so we can use it when `simplify=FALSE`
 
-  x.s <- ansi_strsplit(x.1, "\n")
+  x.s <- ansi_strsplit(x.1, "\n\f")
   x.s.len <- vapply(x.s, length, integer(1L))
   x.s.ul <- unlist(x.s)
 
+  # Get location of spaces in entire vector; doing it here in the hopes that
+  # with C vetorized mapping code it will be faster to do it this way
+
+  x.spaces <- gregexpr(" +", x.s.ul)
+
   # Word wrap each element
 
-  x.wrap.l <- lapply(x.s.ul, elem_wrap, width=width)
+  x.wrap.l <- Map(x.s.ul, elem_wrap, width=width)
 
   # re-list if not simplified
 

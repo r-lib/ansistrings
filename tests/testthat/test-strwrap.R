@@ -7,6 +7,7 @@ test_that('strwrap examples', {
   x <- paste(readLines(file.path(R.home("doc"), "THANKS")), collapse = "\n")
   ## Split into paragraphs and remove the first three ones
   x <- unlist(strsplit(x, "\n[ \t\n]*\n"))[-(1:3)]
+
   ## Pull out the short paragraphs
 
   y <- tail(x, -1L)
