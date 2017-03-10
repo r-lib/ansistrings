@@ -37,11 +37,11 @@ This is an ANSI-aware copy of \code{base::strwrap}.
 \section{Whitespace}{
 
 
-Tabs are treated as single spaces, space sequences are treated as single
-spaces except that those following end of sentence markers (i.e. \sQuote{.},
-\sQuote{?}, or \sQuote{!} will be treated as two spaces if they are two
-spaces or longer.  Form feeds and new lines are treated as newlines.  All
-other whitespace, including but not limited to vertical tabs, carriage
-returns, etc., are treated as if they occupy one screen character.
+Tabs, new lines, and form feeds  are treated as single spaces, space
+sequences are treated as single spaces except that those following end of
+sentence markers (i.e. \sQuote{.}, \sQuote{?}, or \sQuote{!} will be treated
+as two spaces if they are two spaces or longer.  All other whitespace,
+including but not limited to vertical tabs, carriage returns, etc., are
+treated as if they occupy one screen character.
 }
 
