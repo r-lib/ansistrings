@@ -25,40 +25,47 @@ test_that('strwrap examples', {
 
   y.col[c(2, 4, 6)] <- crayon::inverse(y.col[c(2, 4, 6)])
   y.paste <- paste(y.col, collapse = "\n\n")
+  x.paste <- crayon::strip_style(y.paste)
 
-  writeLines(ansi_strwrap(y.paste, width = 60))
-  writeLines(strwrap(crayon:::strip_style(y.paste), width = 60))
+  # writeLines(ansi_strwrap(y.paste, width = 60))
 
-  writeLines(ansi_strwrap(y.paste, width = 60, indent = 5))
-  writeLines(ansi_strwrap(y.paste, width = 60, exdent = 5))
-  writeLines(ansi_strwrap(y.paste, prefix = "THANKS> "))
-
-  # Brainstorming test cases
-
-  a <- "this is a \r string with \r carriage returns in the \rmiddle of it"
-  strwrap(a, width=20)
-
-  width <- 60
-  width <- -1
-  width <- NA
-  width <- 1:10
-  width <- 10.5
-
-  a <- character()
-
-  a <- "\n"
-  a <- "Hello.   There\t. Wow.   This is a spacey  sentence."
-
-  a <- "thisisalongishwordthatwillneedtobesplitsomewhow"
-  a <- NA_character_
-  a <- NULL
-  a <- list("a", NULL, list())
-
-  b <- c(
-    paste0("hello ", red("roses"), "there"),
-    green("this is a color", bgRed("and another"), "yow")
+  expect_true(crayon::has_style(y.paste))
+  expect_equal(
+    strwrap(x.paste, width = 60),
+    crayon::strip_style(ansi_strwrap(y.paste, width=60))
   )
-  
+  if(FALSE) {
+    writeLines(ansi_strwrap(y.paste, width = 60, indent = 5))
+    writeLines(ansi_strwrap(y.paste, width = 60, exdent = 5))
+    writeLines(ansi_strwrap(y.paste, prefix = "THANKS> "))
+
+    # Brainstorming test cases
+
+    a <- "this is a \r string with \r carriage returns in the \rmiddle of it"
+    strwrap(a, width=20)
+
+    width <- 60
+    width <- -1
+    width <- NA
+    width <- 1:10
+    width <- 10.5
+
+    a <- character()
+
+    a <- "\n"
+    a <- "Hello.   There\t. Wow.   This is a spacey  sentence."
+
+    a <- "thisisalongishwordthatwillneedtobesplitsomewhow"
+    a <- NA_character_
+    a <- NULL
+    a <- list("a", NULL, list())
+
+    b <- c(
+      paste0("hello ", red("roses"), "there"),
+      green("this is a color", bgRed("and another"), "yow")
+    )
+  }
+
   # Need UTF-8 Test cases
   # Need Double Width Char Test cases
   # Verify whether wrap occurs at or after width characters

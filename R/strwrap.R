@@ -41,7 +41,8 @@ ansi_strwrap <- function(
 
   x.s <- lapply(
     ansi_strsplit(x, "\n[ \t\n]*\n", perl=TRUE),
-    function(y) c(y, character(length(y)))[order(rep(seq_along(y), 2L))]
+    function(y)
+     head(c(y, character(length(y)))[order(rep(seq_along(y), 2L))], -1L)
   )
   x.s.len <- vapply(x.s, length, integer(1L))
   x.s.ul <- unlist(x.s)
@@ -62,7 +63,8 @@ ansi_strwrap <- function(
 
   # Word wrap each element
 
-  x.wrap.l <- Map(elem_wrap, x.clean, spaces=x.spaces, map=x.map, width=width)
+  x.wrap.l <-
+    unname(Map(elem_wrap, x.clean, spaces=x.spaces, map=x.map, width=width))
 
   # Re list if not simplifying
 
