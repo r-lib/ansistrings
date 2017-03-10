@@ -31,17 +31,39 @@ test_that('strwrap examples', {
 
   expect_true(crayon::has_style(y.paste))
   expect_equal(
-    strwrap(x.paste, width = 60),
-    crayon::strip_style(ansi_strwrap(y.paste, width=60))
+    crayon::strip_style(ansi_strwrap(y.paste, width=60)),
+    strwrap(x.paste, width = 60)
   )
+  # Carriage returns
+  s01 <- "this is a \r string with \r carriage returns in the \rmiddle of it"
+  expect_equal(ansi_strwrap(s01, 20), strwrap(s01, 20))
+
+  # empty string
+  s02 <- character()
+  skip('empty string not working yet')
+  expect_equal(ansi_strwrap(s02, 20), strwrap(s02, 20))
+
+
   if(FALSE) {
+    s03 <- "\n"
+    s04 <- "Hello.   There\t. Wow.   This is a spacey  sentence."
+
+    s05 <- "thisisalongishwordthatwillneedtobesplitsomewhow"
+    s06 <- NA_character_
+    s07 <- NULL
+    s08 <- list("a", NULL, list())
+
+    a01 <- c(
+      paste0("hello ", red("roses"), "there"),
+      green("this is a color", bgRed("and another"), "yow")
+    )
+
     writeLines(ansi_strwrap(y.paste, width = 60, indent = 5))
     writeLines(ansi_strwrap(y.paste, width = 60, exdent = 5))
     writeLines(ansi_strwrap(y.paste, prefix = "THANKS> "))
 
     # Brainstorming test cases
 
-    a <- "this is a \r string with \r carriage returns in the \rmiddle of it"
     strwrap(a, width=20)
 
     width <- 60
@@ -49,21 +71,6 @@ test_that('strwrap examples', {
     width <- NA
     width <- 1:10
     width <- 10.5
-
-    a <- character()
-
-    a <- "\n"
-    a <- "Hello.   There\t. Wow.   This is a spacey  sentence."
-
-    a <- "thisisalongishwordthatwillneedtobesplitsomewhow"
-    a <- NA_character_
-    a <- NULL
-    a <- list("a", NULL, list())
-
-    b <- c(
-      paste0("hello ", red("roses"), "there"),
-      green("this is a color", bgRed("and another"), "yow")
-    )
   }
 
   # Need UTF-8 Test cases
