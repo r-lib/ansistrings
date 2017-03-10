@@ -34,7 +34,6 @@ ansi_strwrap <- function(
   prefix = "", simplify = TRUE, initial = prefix
 ) {
   if(!is.character(x)) x <- as.character(x)
-  message("add encoding handling, use bytes business")
 
   # Split by paragraph, and collect info required to re-assemble, note we add an
   # empty string at end of each paragraph to mimic strsplit
