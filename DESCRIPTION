@@ -8,12 +8,7 @@ Authors@R: c(
     role=c("aut", "cre")),
     person(
     "Brodie", "Gaslam", email="brodie.gaslam@yahoo.com",
-    role=c("aut")),
-    person(
-    family="R Core Team",
-    email="R-core@r-project.org",
-    role="cph",
-    comment="Source for `strwrap`")
+    role=c("aut"))
     )
 Description: String manipulation functions for 'ANSI' colored strings.
     Substrings, split strings, wraps strings, and keeps the coloring proper.
