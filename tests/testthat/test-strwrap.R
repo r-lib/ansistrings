@@ -71,6 +71,10 @@ test_that('strwrap examples', {
     width <- NA
     width <- 1:10
     width <- 10.5
+
+    simplify <- FALSE
+
+    # all other arguments
   }
 
   # Need UTF-8 Test cases

@@ -60,19 +60,27 @@ ansi_strwrap <- function(
   x.spaces <- gregexpr(" +", x.clean)
   x.map <- make_ansi_map(x.clean)
 
-  # Word wrap each element
+  # Get coordinates for wrapping element.  We do this so we can just have one
+  # `ansi_substr` call in case we internally vectorize that
 
-  x.wrap.l <-
-    unname(Map(elem_wrap, x.clean, spaces=x.spaces, map=x.map, width=width))
+  x.wrap.dat <- Map(elem_wrap, x.clean, spaces=x.spaces, map=x.map, width=width)
+
+  # Replicate our input vector so we can substr with our coords
+
+  wrap.lens <- vapply(x.wrap.dat, nrow, integer(1L))
+  x.clean.rep <- rep(x.clean.tmp, wrap.lens)
+  sub.coords <- do.call(rbind, x.wrap.dat)
+
+  x.wrap.strings <- ansi_substr(x.clean.rep, sub.coords[, 1], sub.coords[, 2])
 
   # Re list if not simplifying
 
   x.res <- if(simplify) {
-    unlist(x.wrap.l)
+    unlist(x.wrap.strings)
   } else {
     x.s.groups <- rep(seq_along(x.s), x.s.len)
-    x.wrap.l.s <- split(x.wrap.l, x.s.groups)
-    unname(lapply(x.wrap.l.s, unlist))
+    x.wrap.strings.s <- split(x.wrap.strings, x.s.groups)
+    unname(lapply(x.wrap.strings.s, unlist))
   }
   x.res
 }
@@ -92,12 +100,12 @@ elem_wrap <- function(elem, spaces, map, width) {
   # If no spaces can't wrap
 
   elem.orig <- elem # copy (for debugging) since we're going to modify elem
+  el.chars <- ansi_nchar(elem)
 
-  if(length(spaces) && ansi_nchar(elem) > width) {
+  if(length(spaces) && el.chars > width) {
     # allocate res to maximum possible size, will reduce later if needed
 
-    el.chars <- ansi_nchar(elem)
-    res <- character(ceiling(el.chars / width * 2))
+    res <- matrix(0L, nrow=ceiling(el.chars / width * 2), ncol=2L)
     res.i <- 1L
     elem.i <- 1L
 
@@ -116,12 +124,10 @@ elem_wrap <- function(elem, spaces, map, width) {
 
       target <- max(c(which(space.raw <= width), 1L))
 
-      # get the string up to just before that space, and then move our indices
-      # forward NOTE: should just record coords and call ansisubstr once
+      # get the coords for the string up to just before that space, and then 
+      # move our indices forward
 
-      res[res.i] <- ansi_substr(
-        elem, elem.i, space.raw[target] + elem.i - 2L
-      )
+      res[res.i, ] <- c(elem.i, space.raw[target] + elem.i - 2L)
       space.offset <- space.raw[target] + space.len[target]
       elem.i <- elem.i + space.offset - 1L
 
@@ -132,13 +138,13 @@ elem_wrap <- function(elem, spaces, map, width) {
       # End case
 
       if(!length(space.raw) || (el.chars - elem.i + 1 <= width)) {
-        res[res.i] <- ansi_substr(elem, elem.i, el.chars)
+        res[res.i, ] <- c(elem.i, el.chars)
         break
       }
     }
     head(res, res.i)
   } else {
-    elem
+    matrix(c(1L, el.chars), ncol=2L)
   }
 }
 
