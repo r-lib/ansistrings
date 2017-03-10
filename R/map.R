@@ -55,6 +55,10 @@ map_ansi_to_raw1 <- function(map, ansi) {
 ## QUESTION: Does "Raw Coordinates" mean original coordinates, or coordinates
 ## after assuming ANSI sequences are zero length?  Return value of
 ## `make_ansi_map` suggests the later, but "Raw" suggests the former.
+##
+## Almost certainly:
+## - Raw == 'coordinates after stripping ANSI tags'
+## - Ansi == 'coordinates including ansi tags'
 
 #' Create a map of the ANSI tags of a single string
 #'

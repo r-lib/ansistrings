@@ -23,10 +23,12 @@ test_that('strwrap examples', {
 
   # and color some entire sentences
 
-  y.col[c(2, 4, 6)] <- crayon::bgBlue(y.col[c(2, 4, 6)])
+  y.col[c(2, 4, 6)] <- crayon::inverse(y.col[c(2, 4, 6)])
   y.paste <- paste(y.col, collapse = "\n\n")
 
   writeLines(ansi_strwrap(y.paste, width = 60))
+  writeLines(strwrap(crayon:::strip_style(y.paste), width = 60))
+
   writeLines(ansi_strwrap(y.paste, width = 60, indent = 5))
   writeLines(ansi_strwrap(y.paste, width = 60, exdent = 5))
   writeLines(ansi_strwrap(y.paste, prefix = "THANKS> "))

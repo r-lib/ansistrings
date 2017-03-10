@@ -4,12 +4,12 @@
 #'
 #' @section Whitespace:
 #'
-#' Tabs are treated as single spaces, space sequences are treated as single
-#' spaces except that those following end of sentence markers (i.e. \sQuote{.},
-#' \sQuote{?}, or \sQuote{!} will be treated as two spaces if they are two
-#' spaces or longer.  Form feeds and new lines are treated as newlines.  All
-#' other whitespace, including but not limited to vertical tabs, carriage
-#' returns, etc., are treated as if they occupy one screen character.
+#' Tabs, new lines, and form feeds  are treated as single spaces, space
+#' sequences are treated as single spaces except that those following end of
+#' sentence markers (i.e. \sQuote{.}, \sQuote{?}, or \sQuote{!} will be treated
+#' as two spaces if they are two spaces or longer.  All other whitespace,
+#' including but not limited to vertical tabs, carriage returns, etc., are
+#' treated as if they occupy one screen character.
 #'
 #' @export
 #' @param x: a character vector, or an object which can be converted to a
@@ -34,34 +34,37 @@ ansi_strwrap <- function(
   prefix = "", simplify = TRUE, initial = prefix
 ) {
   if(!is.character(x)) x <- as.character(x)
-  message("add encoding handling")
+  message("add encoding handling, use bytes business")
+
+  # Split by paragraph, and collect info required to re-assemble, note we add an
+  # empty string at end of each paragraph to mimic strsplit
+
+  x.s <- lapply(
+    ansi_strsplit(x, "\n[ \t\n]*\n", perl=TRUE),
+    function(y) c(y, character(length(y)))[order(rep(seq_along(y), 2L))]
+  )
+  x.s.len <- vapply(x.s, length, integer(1L))
+  x.s.ul <- unlist(x.s)
 
   # Replace all multi spaces with a single space, except if they happen to be
   # two spaces following a period, question mark, or exclamation point that
   # themselves appear to be at the end of a word.
 
-  x <- gsub("\t", " ", x, fixed=TRUE)
-  x.1 <- gsub('(?<=\\w)([.!?] ) +| +', '\\1 ', x, perl=TRUE)
-
-  # Split by newlines, and establish mapping of each element back to the
-  # original vector spot so we can use it when `simplify=FALSE`
-
-  x.s <- ansi_strsplit(x.1, "\n\f")
-  x.s.len <- vapply(x.s, length, integer(1L))
-  x.s.ul <- unlist(x.s)
+  x.clean.tmp <- gsub("\t|\n|\f", " ", x.s.ul, perl=TRUE)
+  x.clean <- gsub('(?<=\\w)([.!?] ) +| +', '\\1 ', x.clean.tmp, perl=TRUE)
 
   # Get location of spaces in entire vector; doing it here in the hopes that
   # with C vetorized mapping code it will be faster to do it this way instead of
   # for each individual CHRSXP
 
-  x.spaces <- gregexpr(" +", x.s.ul)
-  x.map <- make_ansi_map(x.s.ul)
+  x.spaces <- gregexpr(" +", x.clean)
+  x.map <- make_ansi_map(x.clean)
 
   # Word wrap each element
 
-  x.wrap.l <- Map(elem_wrap, x.s.ul, spaces=x.spaces, map=x.map, width=width)
+  x.wrap.l <- Map(elem_wrap, x.clean, spaces=x.spaces, map=x.map, width=width)
 
-  # re-list if not simplified
+  # Re list if not simplifying
 
   x.res <- if(simplify) {
     unlist(x.wrap.l)
@@ -97,31 +100,37 @@ elem_wrap <- function(elem, spaces, map, width) {
     res.i <- 1L
     elem.i <- 1L
 
-    # Remap space position to ansi-space, need `space.len` for the two spaces
-    # following periods, etc.
+    # Remap space position to what they would be without ansi tags (raw).
+    # Need `space.len` for the two spaces following periods, etc.
 
-    space.ansi <- vapply(spaces, map_raw_to_ansi1, integer(1L), map=map)
+    space.raw <- space.raw.orig <-
+      vapply(spaces, map_ansi_to_raw1, integer(1L), map=map)
     space.len <- attr(spaces, 'match.length')
 
     repeat {
       # Try to find a space inside width, and if not, next one after that (the
-      # max(..., 1L) handles this fail over case)
+      # max(..., 1L) handles this fail over case).  Note that `space.raw` is
+      # always relative to `elem.i` since we adjust it in each loop iteration so
+      # that we can always compare directly to width
 
-      target <- max(c(which(space.ansi <= width), 1L))
+      target <- max(c(which(space.raw <= width), 1L))
 
       # get the string up to just before that space, and then move our indices
-      # forward
+      # forward NOTE: should just record coords and call ansisubstr once
 
-      res[res.i] <- ansi_substr(elem, elem.i, space.ansi[target] - 1L)
-      elem.i <- target + space.len[target]
+      res[res.i] <- ansi_substr(
+        elem, elem.i, space.raw[target] + elem.i - 2L
+      )
+      space.offset <- space.raw[target] + space.len[target]
+      elem.i <- elem.i + space.offset - 1L
 
-      space.ansi <- tail(space.ansi, -target)
+      space.raw <- tail(space.raw, -target) - space.offset + 1L
       space.len <- tail(space.len, -target)
       res.i <- res.i + 1
 
       # End case
 
-      if(!length(space.ansi) || (el.chars - elem.i + 1 <= width)) {
+      if(!length(space.raw) || (el.chars - elem.i + 1 <= width)) {
         res[res.i] <- ansi_substr(elem, elem.i, el.chars)
         break
       }
