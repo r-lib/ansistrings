@@ -29,6 +29,12 @@ SEXP ansistrings_make_shifts1(SEXP start, SEXP end) {
   UNPROTECT(2);
   return result;
 }
+/*
+ * adds the accumulated offset between the raw string and the ansi string 
+ * up to the position encoded in `raw`.  Shifts is a three column matrix where
+ * the first column is the raw position, the second the ansi position, and the
+ * third the cumulative offset between first and last.
+ */
 
 SEXP ansistrings_map_raw_to_ansi1(SEXP shifts, SEXP raw) {
   SEXP dim = getAttrib(shifts, R_DimSymbol);
@@ -36,6 +42,9 @@ SEXP ansistrings_map_raw_to_ansi1(SEXP shifts, SEXP raw) {
   int craw = INTEGER(raw)[0];
 
   while (i < n && craw >= INTEGER(shifts)[i]) i++;
+
+  // if we pass any ansi tags, add cumulative offset from 3rd column to our raw
+  // position
 
   return ScalarInteger(i == 0 ? craw : craw + INTEGER(shifts)[2 * n + i - 1]);
 }
