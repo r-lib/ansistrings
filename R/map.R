@@ -7,8 +7,13 @@
 #' @param re The positions of the ANSI tags, as the output of the
 #'   [rematch2::re_exec_all()] function.
 #' @return A three column matrix.
-#'   First column is the raw coordinates of the tags, second column is
-#'   ansi coordinates, third column is the offset between them.
+#'   First column is the start coordinates of the tags, in the raw,
+#'   ANSI-less string. The second column is the coordinates of the tags in
+#'   the ANSI-styled string. The third column is the shift that applies to
+#'   the string after the coordinates. I.e. If a row in the matrix is
+#'   (a, b, c), that means that at position a (in the ANSI-less string),
+#'   which is position b in the ANSI string, the shift is c. This shift
+#'   applies to all coordinates before the coordinates in the next row.
 #'
 #' @keywords internal
 
@@ -52,13 +57,6 @@ map_ansi_to_raw1 <- function(map, ansi) {
   .Call("ansistrings_map_ansi_to_raw1", map$shifts, as.integer(ansi),
         PACKAGE = "ansistrings")
 }
-## QUESTION: Does "Raw Coordinates" mean original coordinates, or coordinates
-## after assuming ANSI sequences are zero length?  Return value of
-## `make_ansi_map` suggests the later, but "Raw" suggests the former.
-##
-## Almost certainly:
-## - Raw == 'coordinates after stripping ANSI tags'
-## - Ansi == 'coordinates including ansi tags'
 
 #' Create a map of the ANSI tags of a single string
 #'

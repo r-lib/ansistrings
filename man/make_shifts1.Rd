@@ -12,8 +12,13 @@ make_shifts1(re)
 }
 \value{
 A three column matrix.
-First column is the raw coordinates of the tags, second column is
-ansi coordinates, third column is the offset between them.
+First column is the start coordinates of the tags, in the raw,
+ANSI-less string. The second column is the coordinates of the tags in
+the ANSI-styled string. The third column is the shift that applies to
+the string after the coordinates. I.e. If a row in the matrix is
+(a, b, c), that means that at position a (in the ANSI-less string),
+which is position b in the ANSI string, the shift is c. This shift
+applies to all coordinates before the coordinates in the next row.
 }
 \description{
 The result of this function can be used with \code{\link[=map_raw_to_ansi1]{map_raw_to_ansi1()}} and
