@@ -44,7 +44,7 @@ re_endreset         <- "0"
 #' @return A character scalar, the regular expression.
 #' @keywords internal
 
-re_ansi <- function() {
+re_ansi <- function(groups = FALSE) {
 
   ## Removed the named capture groups from a regular expression,
   ## to speed up matching and constructing the result object
@@ -63,10 +63,14 @@ re_ansi <- function() {
     re_endreset
   )
 
+  if (!groups) {
+    re_start <- no_groups(re_start)
+    re_end   <- no_groups(re_end)
+  }
+
   paste0(
     "\\x{001b}\\[",
-    "(?:(?<start>", no_groups(re_start),
-    ")|(?<end>", no_groups(re_end), "))",
+    "(?:(?<start>", re_start, ")|(?<end>", re_end, "))",
     "m"
   )
 
