@@ -87,8 +87,6 @@ map_ansi_to_raw1 <- function(map, ansi) {
 
 make_ansi_map1 <- function(str) {
   re <- re_exec_all(str, re_ansi())
-  ## QUESTION: unused, should remove `shifts`?
-  shifts <- make_shifts1(re)
   .Call("ansistrings_make_ansi_map1", str, re$.match$start[[1]],
         re$.match$end[[1]], re$.match$match[[1]], re$start$start[[1]],
         re$start$match[[1]], re$end$match[[1]], PACKAGE = "ansistrings")
