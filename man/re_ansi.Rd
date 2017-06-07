@@ -4,7 +4,7 @@
 \alias{re_ansi}
 \title{Create a regular expression that matches ANSI tags}
 \usage{
-re_ansi()
+re_ansi(groups = FALSE)
 }
 \value{
 A character scalar, the regular expression.

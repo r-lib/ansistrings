@@ -35,3 +35,17 @@ myseq <- function(from, to, by = 1) {
 #' @rdname myseq
 
 `%:%` <- function(from, to) myseq(from, to)
+
+str_insert_parallel <- function(str, pos, insert) {
+
+  text_starts <- c(1, pos)
+  text_ends   <- c(pos - 1, nchar(str))
+
+  text_pieces <- substring(str, text_starts, text_ends)
+
+  res <- character(length(text_pieces) + length(insert))
+  res[myseq(1, length(res), by = 2)] <- text_pieces
+  res[myseq(2, length(res) - 1, by = 2)] <- insert
+
+  paste(res, collapse = "")
+}
