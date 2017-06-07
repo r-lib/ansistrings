@@ -23,6 +23,7 @@ Imports:
     rematch2,
     utils
 Suggests:
-    testthat
+    testthat,
+    webshot
 Remotes: MangoTheCat/rematch2
 Encoding: UTF-8

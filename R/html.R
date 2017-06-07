@@ -13,15 +13,33 @@
 ansi_to_html <- function(text, fullpage = TRUE, collapse = TRUE) {
   if (collapse) text <- paste(text, collapse = "\n")
   html <- vapply(text, ansi_to_html1, character(1), USE.NAMES = FALSE)
-  if (fullpage) {
-    paste0(
-      "<html><body><pre>\n",
-      html,
-      "\n</pre></body></html>"
-    )
-  } else {
-    html
-  }
+  if (fullpage) html <- paste0(
+    "<html><head>\n",
+    "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n",
+    "</head><body style=\"line-height:70%;font-size:200%\">\n",
+    "<pre id=\"content\">\n",
+    html,
+    "\n</pre></body></html>"
+  )
+
+  structure(html, class = "html")
+}
+
+#' @export
+
+knit_print.html <- function(x, ...) {
+  html <- ansi_to_html(x, fullpage = TRUE, collapse = TRUE)
+  html_file <- tempfile(fileext = ".html")
+  on.exit(unlink(html_file), add = TRUE)
+  image_file <- tempfile(fileext = ".png")
+  on.exit(unlink(image_file), add = TRUE)
+  cat(html, file = html_file)
+  webshot::webshot(html_file, image_file, selector = "#content")
+  img <- readBin(image_file, "raw", file.info(image_file)[, "size"])
+  structure(
+    list(image = img, extension = ".png", url = NULL),
+    class = "html_screenshot"
+  )
 }
 
 #' @importFrom crayon strip_style
