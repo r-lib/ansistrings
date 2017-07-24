@@ -14,8 +14,8 @@ Description: String manipulation functions for 'ANSI' colored strings.
     Substrings, split strings, wraps strings, and keeps the coloring proper.
 License: MIT + file LICENSE
 LazyData: true
-URL: https://github.com/gaborcsardi/ansistrings
-BugReports: https://github.com/gaborcsardi/ansistrings/issues
+URL: https://github.com/r-lib/ansistrings
+BugReports: https://github.com/r-lib/ansistrings/issues
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.0.1.9000
 Imports:
