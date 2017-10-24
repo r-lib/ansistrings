@@ -45,3 +45,4 @@ strsplit(crayon::strip_style(str), "[-]+")
 cat(ansi_strsplit(str, "")[[1]], "\\n", sep = " ")
 strsplit(crayon::strip_style(str), "")
 }
+\concept{ANSI string operations}

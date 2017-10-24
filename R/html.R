@@ -9,17 +9,31 @@
 #' @return Character vector of HTML text.
 #'
 #' @export
+#' @importFrom glue glue
 
 ansi_to_html <- function(text, fullpage = TRUE, collapse = TRUE) {
   if (collapse) text <- paste(text, collapse = "\n")
   html <- vapply(text, ansi_to_html1, character(1), USE.NAMES = FALSE)
-  if (fullpage) html <- paste0(
-    "<html><head>\n",
-    "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n",
-    "</head><body style=\"line-height:70%;font-size:200%\">\n",
-    "<pre id=\"content\">\n",
-    html,
-    "\n</pre></body></html>"
+  if (fullpage) html <- glue(
+    '<html>
+       <head>
+         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+         <style type="text/css">
+          @font-face {{
+             font-family: "Menlo";
+             src: url("Menlo-Regular.ttf") format("truetype");
+          }}
+          pre {{
+            font-family: Menlo
+          }}
+         </style>
+       </head>
+       <body>
+         <pre id="content">
+{html}
+         </pre>
+       </body>
+       </html>'
   )
 
   structure(html, class = "html")
@@ -30,7 +44,12 @@ ansi_to_html <- function(text, fullpage = TRUE, collapse = TRUE) {
 knit_print.html <- function(x, ...) {
   html <- ansi_to_html(x, fullpage = TRUE, collapse = TRUE)
   html_file <- tempfile(fileext = ".html")
-  on.exit(unlink(html_file), add = TRUE)
+  font_file <- file.path(dirname(html_file), "Menlo-Regular.ttf")
+  file.copy(
+    system.file(package = "ansistrings", "Menlo-Regular.ttf"),
+    font_file
+  )
+  on.exit(unlink(c(html_file, font_file)), add = TRUE)
   image_file <- tempfile(fileext = ".png")
   on.exit(unlink(image_file), add = TRUE)
   cat(html, file = html_file)
