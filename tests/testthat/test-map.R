@@ -3,7 +3,7 @@ context("ANSI mappings")
 
 test_that("make_shifts1", {
   str <- "pre \033[31mred\033[39m \033[1mbold\033[22m post"
-  obj <- make_shifts1(rematch2::re_exec_all(str, re_ansi()))
+  obj <- make_shifts1(re_exec_all(str, re_ansi()))
   exp <- cbind( c(5,8,9,13), c(5,13,19,27), c(5,10,14,19))
   expect_equal(obj, exp)
 })

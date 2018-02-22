@@ -21,10 +21,8 @@ RoxygenNote: 6.0.1.9000
 Imports:
     crayon,
     glue,
-    rematch2,
     utils
 Suggests:
     testthat,
     webshot
-Remotes: MangoTheCat/rematch2
 Encoding: UTF-8

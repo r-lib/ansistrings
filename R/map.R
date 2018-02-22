@@ -4,8 +4,7 @@
 #' The result of this function can be used with [map_raw_to_ansi1()] and
 #' [map_ansi_to_raw1()] do the actual conversion between them.
 #'
-#' @param re The positions of the ANSI tags, as the output of the
-#'   [rematch2::re_exec_all()] function.
+#' @param re The positions of the ANSI tags.
 #' @return A three column matrix.
 #'   First column is the start coordinates of the tags, in the raw,
 #'   ANSI-less string. The second column is the coordinates of the tags in
@@ -80,7 +79,6 @@ map_ansi_to_raw1 <- function(map, ansi) {
 #'   for the actual format.
 #'
 #' @keywords internal
-#' @importFrom rematch2 re_exec_all
 #' @importFrom utils tail
 
 make_ansi_map1 <- function(str) {

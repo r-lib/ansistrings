@@ -15,8 +15,7 @@ such) containing regular expression(s) (unless \code{fixed = TRUE}) to use
 for splitting.  If empty matches occur, in particular if \code{split} has
 zero characters, \code{x} is split into single characters.}
 
-\item{...}{Extra arguments are passed to \code{base::strsplit} and
-\code{rematch2::re_exec_all}.}
+\item{...}{Extra arguments are passed to \code{base::strsplit}.}
 }
 \value{
 A list of the same length as \code{x}, the \eqn{i}-th element of
@@ -45,4 +44,3 @@ strsplit(crayon::strip_style(str), "[-]+")
 cat(ansi_strsplit(str, "")[[1]], "\\n", sep = " ")
 strsplit(crayon::strip_style(str), "")
 }
-\concept{ANSI string operations}

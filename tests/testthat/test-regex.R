@@ -9,7 +9,7 @@ test_that("Issue #5", {
   )
 
   zz <- '\033[31;47mHello\033[0m\n'
-  re <- rematch2::re_match_all(zz, re_ansi())
+  re <- re_match_all(zz, re_ansi())
   skip("Multiple commands in one tag are not supported yet")
   expect_equal(re$start, list("31;47"))
   expect_equal(re$end, list("0"))

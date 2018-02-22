@@ -7,8 +7,7 @@
 make_shifts1(re)
 }
 \arguments{
-\item{re}{The positions of the ANSI tags, as the output of the
-\code{\link[rematch2:re_exec_all]{rematch2::re_exec_all()}} function.}
+\item{re}{The positions of the ANSI tags.}
 }
 \value{
 A three column matrix.
