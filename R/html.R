@@ -41,7 +41,7 @@ ansi_to_html <- function(text, fullpage = TRUE, collapse = TRUE) {
 
 #' @export
 
-knit_print.html <- function(x, ...) {
+knit_print.html <- function(x, zoom = 2, ...) {
   html <- ansi_to_html(x, fullpage = TRUE, collapse = TRUE)
   html_file <- tempfile(fileext = ".html")
   font_file <- file.path(dirname(html_file), "Menlo-Regular.ttf")
@@ -53,7 +53,8 @@ knit_print.html <- function(x, ...) {
   image_file <- tempfile(fileext = ".png")
   on.exit(unlink(image_file), add = TRUE)
   cat(html, file = html_file)
-  webshot::webshot(html_file, image_file, selector = "#content")
+  webshot::webshot(html_file, image_file, selector = "#content",
+                   zoom = zoom)
   img <- readBin(image_file, "raw", file.info(image_file)[, "size"])
   structure(
     list(image = img, extension = ".png", url = NULL),
