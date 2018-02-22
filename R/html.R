@@ -9,12 +9,11 @@
 #' @return Character vector of HTML text.
 #'
 #' @export
-#' @importFrom glue glue
 
 ansi_to_html <- function(text, fullpage = TRUE, collapse = TRUE) {
   if (collapse) text <- paste(text, collapse = "\n")
   html <- vapply(text, ansi_to_html1, character(1), USE.NAMES = FALSE)
-  if (fullpage) html <- glue(
+  if (fullpage) html <- paste0(
     '<html>
        <head>
          <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -29,8 +28,8 @@ ansi_to_html <- function(text, fullpage = TRUE, collapse = TRUE) {
          </style>
        </head>
        <body>
-         <pre id="content">
-{html}
+         <pre id="content">\n',
+    html, '
          </pre>
        </body>
        </html>'
