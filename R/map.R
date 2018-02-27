@@ -17,7 +17,7 @@
 #' @keywords internal
 
 make_shifts1 <- function(re) {
-  .Call("ansistrings_make_shifts1", re$.match$start[[1]], re$.match$end[[1]],
+  .Call("ansistrings_make_shifts1", re$.match[[1]]$start, re$.match[[1]]$end,
         PACKAGE = "ansistrings")
 }
 
@@ -83,9 +83,9 @@ map_ansi_to_raw1 <- function(map, ansi) {
 
 make_ansi_map1 <- function(str) {
   re <- re_exec_all(str, re_ansi())
-  .Call("ansistrings_make_ansi_map1", str, re$.match$start[[1]],
-        re$.match$end[[1]], re$.match$match[[1]], re$start$start[[1]],
-        re$start$match[[1]], re$end$match[[1]], PACKAGE = "ansistrings")
+  .Call("ansistrings_make_ansi_map1", str, re$.match[[1]]$start,
+        re$.match[[1]]$end, re$.match[[1]]$match, re$start[[1]]$start,
+        re$start[[1]]$match, re$end[[1]]$match, PACKAGE = "ansistrings")
 }
 
 ## Applies `make_ansi_map` to Each Value In Char Vector
