@@ -15,9 +15,10 @@ split strings, wraps strings, and keeps the coloring proper.
 
 ## Installation
 
+Once on CRAN, install the package as usual:
 
 ```r
-source("https://install-github.me/r-lib/ansistrings")
+install.packages("ansistrings")
 ```
 
 ## Usage
